@@ -11,11 +11,6 @@ from skimage.segmentation import clear_border
 import glob
 import csv
 from scipy import ndimage as ndi
-from tkinter import *
-from tkinter import Tk, Menu, Canvas
-from PIL import Image, ImageTk
-#import tkFileDialog as filedialog
-from tkinter import filedialog
 
 from keras.preprocessing.image import img_to_array
 from keras.models import load_model
@@ -24,6 +19,11 @@ import imutils
 import operator
 import random
 import matplotlib.pyplot as plt
+from tkinter import *
+from tkinter import Tk, Menu, Canvas
+from PIL import Image, ImageTk
+#import tkFileDialog as filedialog
+from tkinter import filedialog
 def reading(imageSource):
     global predictions_test
     im = cv2.imread(imageSource,0)
@@ -214,9 +214,18 @@ def quitProgram():
 
 # Main window
 gui = Tk()
+gui.title("Prediction")
+gui.geometry("800x500+320+100")
+gui.configure(background="white")
+width=400
+height=200
+screen_width=gui.winfo_screenwidth()
+screen_height=gui.winfo_screenheight()
+x_cord=(screen_width/2)-(width/2)
+y_cord=(screen_height/2)-(height/2)
+
 # setting the size of the window
-canvas = Canvas(gui, width = 800, height =500)
-canvas.pack()
+
 
 
 # BROWSE BUTTON CODE
@@ -225,7 +234,15 @@ def browsefunc():
     imgname = filedialog.askopenfilename()
     pathLabel = Label(gui, text=imgname, anchor=N )
     pathLabel.pack()
-
+    width = 430
+    height = 320
+    img = Image.open(imgname)
+    im2 = img.resize((250, 250), Image.NEAREST)
+    #width, height = img.size
+    filename = ImageTk.PhotoImage(im2)
+    canvas.image = filename  # <--- keep reference of your image
+    canvas.create_image(600,0,anchor=N,image=filename)
+    canvas.pack()
 
 
 # Inside the main gui window
@@ -236,71 +253,111 @@ def loadImage():
     width = 430
     height = 320
     img = Image.open(imgname)
-    im2 = img.resize((width, height), Image.NEAREST)
+    im2 = img.resize((250, 250), Image.NEAREST)
     #width, height = img.size
     filename = ImageTk.PhotoImage(im2)
     canvas.image = filename  # <--- keep reference of your image
-    canvas.create_image(200,0,anchor=N,image=filename)
+    canvas.create_image(600,0,anchor=N,image=filename)
     canvas.pack()
 #RUNNING PROGRAM
 def run():
     reading(imgname)
     popup = Tk()
-    popup.wm_title("!")
-    popup.geometry("200x100")
+    popup.wm_title("Result")
+    popup.geometry("220x100+420+300")
+    popup.configure(background="white")
+    width=200
+    height=100
+    screen_width=popup.winfo_screenwidth()
+    screen_height=popup.winfo_screenheight()
+    x_cord=(screen_width/2)-(width/2)
+    y_cord=(screen_height/2)-(height/2)
     pred = predictions_test
     if(pred==0):
-        predLabel = Label(popup, text = "Not Cancerous", anchor = S)
+        predLabel = Label(popup, text = "Not Cancerous..", anchor = S)
     elif(pred== 1):
-        predLabel = Label(popup, text = " Cancer stage 1", anchor = S)
+        predLabel = Label(popup, text = " Cancer stage 1\n\n Get treatment..", anchor = S)
     elif(pred== 2):
-        predLabel = Label(popup, text = " Cancer stage 2", anchor = S)
+        predLabel = Label(popup, text = " Cancer stage 2\n\n Meet the doctor immediately..", anchor = S)
     elif(pred==3):
-        predLabel = Label(popup, text = " Cancer stage 3", anchor = S)
+        predLabel = Label(popup, text = " Cancer stage 3 \n\n Meet the doctor immediately..", anchor = S)
+    predLabel.configure(background="white")
     predLabel.pack(side="top", fill="x", pady=10)
-    B1 = Button(popup, text="Okay", command = popup.destroy)
+    B1 = Button(popup, text="CLOSE", command = popup.destroy)
+    B1.configure(background="white")
     B1.pack()
     popup.mainloop()
     
 def runcode():
     do_processing(imgname)
     pop = Tk()
-    pop.wm_title("!")
-    pop.geometry("200x100")
-    print(labell)
-    pr = Label(pop, text = labell, anchor = S)
-    #if(labell=="no cancer detected"):
-    #    pr = Label(pop, text = "Not Cancerous", anchor = S)
-    #elif(labell=="cancer first stage"):
-    #    pr = Label(pop, text = " Cancer stage 1", anchor = S)
-    #elif(labell=="cancer second stage"):
-    #    pr = Label(pop, text = " Cancer stage 2", anchor = S)
-    #elif(labell=="cancer third stage"):
-    #    pr = Label(pop, text = " Cancer stage 3", anchor = S)
+    pop.wm_title("Result")
+    pop.geometry("220x100+420+300")
+    pop.configure(background="white")
+    width=200
+    height=100
+    screen_width=pop.winfo_screenwidth()
+    screen_height=pop.winfo_screenheight()
+    x_cord=(screen_width/2)-(width/2)
+    y_cord=(screen_height/2)-(height/2)
+    #print(labell)
+    #pr = Label(pop, text = labell, anchor = S)
+    if(labell=="no cancer detected"):
+        pr = Label(pop, text = "Not Cancerous..", anchor = S)
+    elif(labell=="cancer first stage"):
+        pr = Label(pop, text = " Cancer detected (stage 1)\n\n Get treatment..", anchor = S)
+    elif(labell=="cancer second stage"):
+        pr = Label(pop, text = " Cancer detected (stage 2) \n\n Meet the doctor immediately..", anchor = S)
+    elif(labell=="cancer third stage"):
+        pr = Label(pop, text = " Cancer detected(stage 3)\n\n Meet the doctor immediately..", anchor = S)
+    pr.configure(background="white")
     pr.pack(side="top", fill="x", pady=10)
-    B = Button(pop, text="Okay", command = pop.destroy)
+    B = Button(pop, text="CLOSE", command = pop.destroy)
+    B.configure(background="white")
     B.pack()
     pop.mainloop()
+    
 
-menubar = Menu(gui)
-# Adding a cascade to the menu bar:
-filemenu = Menu(menubar, tearoff=0)
-menubar.add_cascade(label="Files", menu=filemenu)
-# Adding an option to browse for an image
-filemenu.add_command(label="browse", command=browsefunc)
-# Adding a load image button to the cascade menu "File"
-filemenu.add_command(label="Load an image", command=loadImage)
-# Adding a running program to the cascade menu "File"
-filemenu.add_command(label="View result using svm", command=run)
-filemenu.add_separator()
-filemenu.add_command(label="View result using cnn", command=runcode)
-filemenu.add_separator()
-#Adding an option to quit the window
-filemenu.add_command(label="Quit", command=quitProgram)
-menubar.add_separator()
-#menubar.add_cascade(label="?")
+la = Label(gui, text = "LUNG CANCER DETECTION SYSTEM",pady=10, anchor = S)
+la.config(font=("Courier", 15))
+la.configure(background="white")
+la.pack()
+label2 = Label(gui, text = "",pady=10, anchor = S)
+label2.configure(background="white")
+label2.pack()
 
-# Display the menu bar
-gui.config(menu=menubar)
-gui.title("EXTRACT TEXT FROM IMAGE")
+browsebutton = Button(gui, text="Browse",padx=47, command=browsefunc)
+browsebutton.configure(background="white")
+browsebutton.pack()
+pathlab= Label(gui)
+pathlab.configure(background="white")
+pathlab.pack()
+#loadbut =Button(gui,text="LOAD THE IMAGE",padx=18,fg="red",command=loadImage)
+#loadbut.configure(background="white")
+#loadbut.pack()
+#print("filenma",file)
+button = Button(gui,text="RESULT USING SVM",fg="red",command=run)
+button.configure(background="white")
+button.pack()
+label6 = Label(gui, text = "", pady=2,anchor = S)
+label6.configure(background="white")
+label6.pack()
+
+#print("filenma",file)
+but =Button(gui,text="RESULT USING CNN",fg="red",command=runcode)
+but.configure(background="white")
+but.pack()
+label5 = Label(gui, text = "", pady=2,anchor = S)
+label5.configure(background="white")
+label5.pack()
+
+qbut =Button(gui,text="QUIT",fg="red",padx=53,command=quitProgram)
+qbut.configure(background="white")
+qbut.pack()
+label4 = Label(gui, text = "", pady=2,anchor = S)
+label4.configure(background="white")
+label4.pack()
+canvas = Canvas(gui, width = 800, height =300)
+canvas.configure(background="white")
+canvas.pack()
 gui.mainloop()
